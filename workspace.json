@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+  "version": 2,
+  "projects": {
+    "forterest": "apps/forterest",
+    "forterest-e2e": "apps/forterest-e2e"
+  }
+}
