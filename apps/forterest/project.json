@@ -21,7 +21,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "forterest:build",
-        "dev": true
+        "dev": true,
+        "proxyConfig": "apps/forterest/proxy.conf.json"
       },
       "configurations": {
         "development": {
@@ -32,6 +33,15 @@
           "buildTarget": "forterest:build:production",
           "dev": false
         }
+      }
+    },
+    "serve-with-api": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          { "command": "nx run api:serve" },
+          { "command": "nx run forterest:serve" }
+        ]
       }
     },
     "export": {

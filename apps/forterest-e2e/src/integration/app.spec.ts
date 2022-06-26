@@ -1,13 +1,14 @@
-import { getGreeting } from '../support/app.po';
+import { getSearchBar } from '../support/app.po';
 
 describe('forterest', () => {
   beforeEach(() => cy.visit('/'));
 
-  it('should display welcome message', () => {
-    // Custom command example, see `../support/commands.ts` file
-    cy.login('my-email@something.com', 'myPassword');
+  it('should display a search bar', () => {
+    getSearchBar().should('be.visible')
+  })
 
-    // Function helper example, see `../support/app.po.ts` file
-    getGreeting().contains('Welcome forterest');
-  });
+  it('should search', () => {
+    getSearchBar().type('b')
+    cy.dataTest('cosmetic').should('have.length.greaterThan', 0)
+  })
 });

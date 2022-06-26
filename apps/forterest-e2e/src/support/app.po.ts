@@ -1,1 +1,1 @@
-export const getGreeting = () => cy.get('h1');
+export const getSearchBar = () => cy.get('input');

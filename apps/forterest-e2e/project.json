@@ -12,7 +12,21 @@
       "configurations": {
         "production": {
           "devServerTarget": "forterest:serve:production"
+        },
+        "ci": {
+          "baseUrl":"http://localhost:4200",
+          "devServerTarget": "forterest-e2e:serve-forterest-with-api"
         }
+      }
+    },
+    "serve-forterest-with-api": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          { "command": "nx run api:serve" },
+          { "command": "nx run forterest:serve" }
+        ],
+        "readyWhen": "Listening at "
       }
     },
     "lint": {

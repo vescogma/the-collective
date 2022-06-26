@@ -1,0 +1,10 @@
+@tailwind components;
+@tailwind base;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-slate-400;
+    @apply text-slate-800;
+  }
+}

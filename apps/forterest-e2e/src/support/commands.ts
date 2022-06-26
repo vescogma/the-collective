@@ -13,13 +13,24 @@ declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
     login(email: string, password: string): void;
+    dataTest(selector: string, ...args): Chainable<Subject>;
+    dataTestLike(selector: string, ...args): Chainable<Subject>;
   }
 }
+
+Cypress.Commands.add('dataTest', (selector, ...args) =>
+  cy.get(`[data-test=${selector}]`, ...args)
+);
+
+Cypress.Commands.add('dataTestLike', (selector, ...args) =>
+  cy.get(`[data-test*=${selector}]`, ...args)
+);
+
 //
 // -- This is a parent command --
-Cypress.Commands.add('login', (email, password) => {
-  console.log('Custom command example: Login', email, password);
-});
+// Cypress.Commands.add('login', (email, password) => {
+//   console.log('Custom command example: Login', email, password)
+// })
 //
 // -- This is a child command --
 // Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
