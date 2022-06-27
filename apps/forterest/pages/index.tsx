@@ -10,7 +10,7 @@ export function Index() {
   const [search, setSearch] = useState('');
 
   const { data: cosmetics } = useSWR<{ item: any }[]>(
-    `/api/search?q=${search}`,
+    `${process.env.NX_API_URL}/api/search?q=${search}`,
     fetcher
   );
 
@@ -35,7 +35,11 @@ export function Index() {
       <div className="container mx-auto p-4 flex flex-col items-center">
         <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-8">
           {(cosmetics ?? []).map(({ item }) => (
-            <div key={item.id} data-test="cosmetic" className="rounded bg-gray-300/75 drop-shadow">
+            <div
+              key={item.id}
+              data-test="cosmetic"
+              className="rounded bg-gray-300/75 drop-shadow"
+            >
               <div className="bg-red-200/90 p-4 text-lg text-slate-600 rounded-t">
                 {item.name}
               </div>
