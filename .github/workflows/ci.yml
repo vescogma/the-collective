@@ -1,0 +1,101 @@
+name: ci
+
+on:
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT: the-collective-353519
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: preview
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+      - id: npm-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: npm-ci-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - name: yarn install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - run: npx nx workspace-lint
+      - run: npx nx format:check
+      - run: npx nx run-many --target=lint --all
+      - run: npx nx run-many --target=test --all --ci --code-coverage
+
+  deploy-api:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: preview
+    outputs:
+      api-url: ${{ steps.gcp-deploy.outputs.url }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+      - uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - run: npx nx run api:build:production
+      - run: cp ./apps/api/app.yaml ./dist/apps/api/app.yaml
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - id: gcp-deploy
+        uses: google-github-actions/deploy-appengine@v0
+        with:
+          deliverables: dist/apps/api/app.yaml
+          promote: false
+      - run: |
+          echo "Deployed api preview :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "Link: ${{ steps.gcp-deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+
+  deploy-forterest:
+    needs: [test, deploy-api]
+    runs-on: ubuntu-latest
+    environment: preview
+    outputs:
+      forterest-url: ${{ steps.gcp-deploy.outputs.url }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+      - uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - run: echo NX_API_URL=${{ needs.deploy-api.outputs.api-url }} >> ./apps/forterest/.env.local
+      - run: npx nx run forterest:build:production
+      - run: cp ./apps/forterest/app.yaml ./dist/apps/forterest/app.yaml
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - id: gcp-deploy
+        uses: google-github-actions/deploy-appengine@v0
+        with:
+          deliverables: dist/apps/forterest/app.yaml
+          promote: false
+      - run: |
+          echo "Deployed forterest preview :star:" >> $GITHUB_STEP_SUMMARY
+          echo "Link: ${{ steps.gcp-deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
