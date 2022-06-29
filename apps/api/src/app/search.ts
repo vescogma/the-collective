@@ -7,21 +7,21 @@ const fuse = new Fuse<Cosmetic>(db, {
   keys: [
     {
       name: 'name',
-      weight: 0.7,
+      weight: 0.5,
     },
     {
       name: 'description',
-      weight: 0.3,
+      weight: 0.5,
     },
   ],
   includeScore: true,
-  threshold: 0.3,
+  threshold: 0.25,
 });
 
 export function addSearchRoutes(app: Express) {
   app.get('/api/search', (req, res) => {
     const pattern = (req.query as { q?: string }).q;
-    const results = fuse.search(pattern, { limit: 20 });
+    const results = fuse.search(pattern, { limit: 5 });
     res.send(results);
   });
 }
