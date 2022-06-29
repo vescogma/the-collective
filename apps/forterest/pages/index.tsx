@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { SearchIcon } from '@heroicons/react/solid';
+import { SearchIcon, LocationMarkerIcon } from '@heroicons/react/solid';
 import Image from 'next/image';
 import useSWR from 'swr';
 import { Cosmetic } from '@the-collective/model';
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args).then((res) => res.json());
+
+const post = (url: string) =>
+  fetcher(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
 export function Index() {
   const [search, setSearch] = useState('');
@@ -14,6 +22,10 @@ export function Index() {
     `${process.env.NX_API_URL}/api/search?q=${search}`,
     fetcher
   );
+
+  const { data: pinned, mutate: refetch } = useSWR<
+    { [key: string]: boolean }[]
+  >(`${process.env.NX_API_URL}/api/pinned`, fetcher);
 
   return (
     <>
@@ -41,7 +53,16 @@ export function Index() {
               data-test="cosmetic"
               className="rounded bg-gray-300/75 drop-shadow"
             >
-              <div className="bg-red-200/90 p-4 text-lg text-slate-600 rounded-t">
+              <div className="bg-red-200/90 p-4 text-lg text-slate-600 rounded-t flex flex-row align-center gap-4">
+                <LocationMarkerIcon
+                  className={`h-8 w-8 ${
+                    pinned[item.id] ? 'text-slate-600' : 'text-slate-400'
+                  }`}
+                  onClick={async () => {
+                    await pin(pinned[item.id] ? 'unpin' : 'pin', item.id);
+                    refetch();
+                  }}
+                />
                 {item.name}
               </div>
               <div className="flex flex-row relative gap-4">
@@ -71,3 +92,6 @@ export function Index() {
 }
 
 export default Index;
+
+const pin = (action: 'pin' | 'unpin', cosmeticId: string) =>
+  post(`${process.env.NX_API_URL}/api/${action}/${cosmeticId}`);

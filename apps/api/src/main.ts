@@ -6,6 +6,7 @@
 import Express from 'express';
 import Cors from 'cors';
 import { addSearchRoutes } from './app/search';
+import { addPinRoutes } from './app/pin';
 
 const app = Express();
 const cors = Cors();
@@ -17,6 +18,7 @@ app.get('/api', (req, res) => {
 });
 
 addSearchRoutes(app);
+addPinRoutes(app);
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
