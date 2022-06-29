@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     outputs:
-      forterest-url: ${{ steps.gcp-deploy.outputs.url || env.API_URL_PROD }}
+      forterest-url: ${{ steps.gcp-deploy.outputs.url }}
     permissions:
       contents: read
       id-token: write
@@ -96,7 +96,7 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-      - run: echo NX_API_URL=${{ needs.deploy-api.outputs.api-url }} >> ./apps/forterest/.env.local
+      - run: echo NX_API_URL=${{ needs.deploy-api.outputs.api-url || env.API_URL_PROD }} >> ./apps/forterest/.env.local
       - run: npx nx run forterest:build:production
       - run: cp ./apps/forterest/app.yaml ./dist/apps/forterest/app.yaml
       - uses: google-github-actions/auth@v0
