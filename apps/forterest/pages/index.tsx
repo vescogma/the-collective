@@ -17,14 +17,14 @@ export function Index() {
 
   return (
     <>
-      <div className="sticky top-0 bg-red-200 z-10 drop-shadow">
+      <div className="sticky top-0 bg-blue-200 z-10 drop-shadow">
         <div className=" container mx-auto p-4 flex flex-row items-center gap-8">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
               <SearchIcon className="h-4 w-4 text-slate-500" />
             </div>
             <input
-              className="rounded h-8 pl-8 bg-red-50"
+              className="rounded h-8 pl-8 bg-blue-50"
               placeholder="I'm looking for..."
               value={search}
               type="text"
@@ -41,14 +41,14 @@ export function Index() {
               data-test="cosmetic"
               className="rounded bg-gray-300/75 drop-shadow"
             >
-              <div className="bg-red-200/90 p-4 text-lg text-slate-600 rounded-t">
+              <div className="bg-blue-200/90 p-4 text-lg text-slate-600 rounded-t">
                 {item.name}
               </div>
               <div className="flex flex-row relative gap-4">
                 <div className="flex-1 p-4 text-slate-600">
                   {item.description}
                 </div>
-                <div className="w-32 h-32 rounded bg-red-300 overflow-hidden drop-shadow-sm -translate-x-2 -translate-y-1 scale-125">
+                <div className="w-32 h-32 rounded bg-blue-300 overflow-hidden drop-shadow-sm -translate-x-2 -translate-y-1 scale-125">
                   <Image
                     src={
                       item.images.featured ||
