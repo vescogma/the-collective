@@ -7,11 +7,14 @@ on:
 
 env:
   GCP_PROJECT: the-collective-353519
+  API_URL_PROD: https://the-collective-353519.uc.r.appspot.com/
 
 jobs:
   test:
     runs-on: ubuntu-latest
     environment: preview
+    outputs:
+      affected: ${{ steps.affected-projects.outputs.affected}}
     permissions:
       contents: read
       actions: write
@@ -32,8 +35,10 @@ jobs:
         run: npm ci
       - run: npx nx workspace-lint
       - run: npx nx format:check
-      - run: npx nx run-many --target=lint --all
-      - run: npx nx run-many --target=test --all --ci --code-coverage
+      - run: npx nx affected --target=lint --all
+      - run: npx nx affected --target=test --all --ci --code-coverage
+      - id: affected-projects
+        run: echo ::set-output name=affected::$(npx nx print-affected --type=app --select=projects)
 
   deploy-api:
     needs: test
@@ -54,11 +59,15 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - run: npx nx run api:build:production
+        if: contains(needs.test.outputs.affected, 'api')
       - run: cp ./apps/api/app.yaml ./dist/apps/api/app.yaml
+        if: contains(needs.test.outputs.affected, 'api')
       - uses: google-github-actions/auth@v0
+        if: contains(needs.test.outputs.affected, 'api')
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - id: gcp-deploy
+        if: contains(needs.test.outputs.affected, 'api')
         uses: google-github-actions/deploy-appengine@v0
         with:
           deliverables: dist/apps/api/app.yaml
@@ -66,13 +75,15 @@ jobs:
       - run: |
           echo "Deployed api preview :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "Link: ${{ steps.gcp-deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+        if: contains(needs.test.outputs.affected, 'api')
 
   deploy-forterest:
+    if: contains(needs.test.outputs.affected, 'forterest')
     needs: [test, deploy-api]
     runs-on: ubuntu-latest
     environment: preview
     outputs:
-      forterest-url: ${{ steps.gcp-deploy.outputs.url }}
+      forterest-url: ${{ steps.gcp-deploy.outputs.url || env.API_URL_PROD }}
     permissions:
       contents: read
       id-token: write

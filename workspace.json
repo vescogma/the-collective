@@ -4,6 +4,7 @@
   "projects": {
     "api": "apps/api",
     "forterest": "apps/forterest",
-    "forterest-e2e": "apps/forterest-e2e"
+    "forterest-e2e": "apps/forterest-e2e",
+    "model": "libs/model"
   }
 }

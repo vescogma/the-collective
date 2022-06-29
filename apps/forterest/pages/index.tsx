@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SearchIcon } from '@heroicons/react/solid';
 import Image from 'next/image';
 import useSWR from 'swr';
+import { Cosmetic } from '@the-collective/model';
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args).then((res) => res.json());
@@ -9,7 +10,7 @@ const fetcher = (...args: Parameters<typeof fetch>) =>
 export function Index() {
   const [search, setSearch] = useState('');
 
-  const { data: cosmetics } = useSWR<{ item: any }[]>(
+  const { data: cosmetics } = useSWR<{ item: Cosmetic }[]>(
     `${process.env.NX_API_URL}/api/search?q=${search}`,
     fetcher
   );
