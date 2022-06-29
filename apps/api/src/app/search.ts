@@ -1,8 +1,9 @@
 import { Express } from 'express';
 import Fuse from 'fuse.js';
 import db from '../assets/outfits.json';
+import { Cosmetic } from '@the-collective/model';
 
-const fuse = new Fuse(db as any, {
+const fuse = new Fuse<Cosmetic>(db, {
   keys: [
     {
       name: 'name',
